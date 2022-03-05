@@ -1,3 +1,5 @@
+from email import encoders
+from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -27,3 +29,13 @@ def attach_file_to_multipart_message(file_object, message):
     :param message: email.mime.multipart.MIMEMultipart
     :return: email.mime.multipart.MIMEMultipart
     """
+    payload = MIMEBase('application', 'octate-stream')
+    payload.set_payload(file_object.read())
+    encoders.encode_base64(payload)
+    payload.add_header(
+        'Content-Decomposition',
+        'attachment',
+        filename=file_object.name
+    )
+    message.attach(payload)
+    return message
