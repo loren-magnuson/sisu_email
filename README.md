@@ -1,1 +1,1 @@
-# sisu_email
+# sisu_email - some abstractions around the standard python email library
