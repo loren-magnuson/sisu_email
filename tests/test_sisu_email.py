@@ -1,3 +1,4 @@
+import base64
 import unittest
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
@@ -14,6 +15,8 @@ TEST_RECIPIENT = 'recipient123@gmail.com'
 TEST_SUBJECT = 'test subject'
 
 TEST_TXT_ATTACHMENT = './fixtures/test_txt_attachment.txt'
+
+TEST_EXCEL_ATTACHMENT = './fixtures/test_excel_attachment.xls'
 
 
 def create_test_multipart_message():
@@ -47,6 +50,28 @@ class TestSisuEmail(unittest.TestCase):
             self.assertEqual(
                 message.get_payload(1).get('Content-Decomposition'),
                 'attachment; filename="./fixtures/test_txt_attachment.txt"'
+            )
+            encoded_body = message.get_payload(1).as_string().split('\n')[-2]
+            self.assertEqual(
+                base64.b64decode(encoded_body),
+                b'this is a test text file attachment'
+            )
+
+        message = create_test_multipart_message()
+        with open(TEST_EXCEL_ATTACHMENT, 'rb') as test_txt_file:
+            message = sisu_email.attach_file_to_multipart_message(
+                test_txt_file,
+                message
+            )
+            self.assertIsInstance(message.get_payload(1), MIMEBase)
+            self.assertEqual(
+                message.get_payload(1).get('Content-Decomposition'),
+                'attachment; filename="./fixtures/test_txt_attachment.txt"'
+            )
+            encoded_body = message.get_payload(1).as_string().split('\n')[-2]
+            self.assertEqual(
+                base64.b64decode(encoded_body),
+                b'this is a test text file attachment'
             )
 
 
