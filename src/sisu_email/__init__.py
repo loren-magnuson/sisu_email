@@ -18,3 +18,12 @@ def create_multipart_message(sender, recipient, subject, body_text, text_format=
     message['Subject'] = subject
     message.attach(MIMEText(body_text, text_format))
     return message
+
+
+def attach_file_to_multipart_message(file_object, message):
+    """Attach a file to a multipart message
+
+    :param file_object: a file-like object
+    :param message: email.mime.multipart.MIMEMultipart
+    :return: email.mime.multipart.MIMEMultipart
+    """
