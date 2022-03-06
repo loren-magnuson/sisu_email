@@ -1,0 +1,3 @@
+distlib==0.3.4
+six==1.16.0
+virtualenv==20.13.2
