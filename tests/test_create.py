@@ -1,11 +1,12 @@
 import base64
 import tempfile
 import unittest
+import PyPDF2
 import xlrd
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from src import sisu_email
+from src.sisu_email import create
 
 
 TEST_BODY_TEXT = 'test'
@@ -16,13 +17,15 @@ TEST_RECIPIENT = 'recipient123@gmail.com'
 
 TEST_SUBJECT = 'test subject'
 
-TEST_TXT_ATTACHMENT = './fixtures/test_txt_attachment.txt'
+TEST_TXT = './fixtures/test_txt.txt'
 
-TEST_EXCEL_ATTACHMENT = './fixtures/test_excel_attachment.xls'
+TEST_EXCEL = './fixtures/test_xls.xls'
+
+TEST_PDF = './fixtures/test_pdf.pdf'
 
 
 def create_test_multipart_message():
-    message = sisu_email.create_multipart_message(
+    message = create.create_multipart_message(
         TEST_SENDER,
         TEST_RECIPIENT,
         TEST_SUBJECT,
@@ -31,7 +34,7 @@ def create_test_multipart_message():
     return message
 
 
-class TestSisuEmail(unittest.TestCase):
+class TestMessageCreation(unittest.TestCase):
 
     def test_create_multipart_message(self):
         message = create_test_multipart_message()
@@ -41,18 +44,15 @@ class TestSisuEmail(unittest.TestCase):
         self.assertEqual(message['To'], TEST_RECIPIENT)
         self.assertIsInstance(message.get_payload(0), MIMEText)
 
-    def test_attach_file_to_multipart_message_text(self):
+    def test_attach_file_text(self):
         message = create_test_multipart_message()
-        with open(TEST_TXT_ATTACHMENT, 'rb') as test_txt_file:
-            message = sisu_email.attach_file_to_multipart_message(
-                test_txt_file,
-                message
-            )
+        with open(TEST_TXT, 'rb') as test_file:
+            message = create.attach_file(test_file, message)
 
             self.assertIsInstance(message.get_payload(1), MIMEBase)
             self.assertEqual(
                 message.get_payload(1).get('Content-Decomposition'),
-                'attachment; filename="./fixtures/test_txt_attachment.txt"'
+                'attachment; filename="./fixtures/test_txt.txt"'
             )
 
             encoded_body = message.get_payload(1).as_string().split('\n')[-2]
@@ -61,18 +61,15 @@ class TestSisuEmail(unittest.TestCase):
                 b'this is a test text file attachment'
             )
 
-    def test_attach_file_to_multipart_message_excel(self):
+    def test_attach_file_xls(self):
         message = create_test_multipart_message()
-        with open(TEST_EXCEL_ATTACHMENT, 'rb') as test_excel_file:
-            message = sisu_email.attach_file_to_multipart_message(
-                test_excel_file,
-                message
-            )
+        with open(TEST_EXCEL, 'rb') as test_file:
+            message = create.attach_file(test_file, message)
 
             self.assertIsInstance(message.get_payload(1), MIMEBase)
             self.assertEqual(
                 message.get_payload(1).get('Content-Decomposition'),
-                'attachment; filename="./fixtures/test_excel_attachment.xls"'
+                'attachment; filename="./fixtures/test_xls.xls"'
             )
 
             encoded_body = ''.join(message.get_payload(1).as_string().split('\n')[5:-1])
@@ -87,6 +84,32 @@ class TestSisuEmail(unittest.TestCase):
                     'TestHeader',
                     wb.sheet_by_index(0).cell(0, 0).value
                 )
+
+    def test_attach_file_pdf(self):
+        message = create_test_multipart_message()
+        with open(TEST_PDF, 'rb') as test_pdf:
+            message = create.attach_file(test_pdf, message)
+
+            self.assertIsInstance(message.get_payload(1), MIMEBase)
+            self.assertEqual(
+                message.get_payload(1).get('Content-Decomposition'),
+                'attachment; filename="./fixtures/test_pdf.pdf"'
+            )
+
+            encoded_body = ''.join(message.get_payload(1).as_string().split('\n')[5:-1])
+            decoded_body = base64.b64decode(encoded_body)
+
+            with tempfile.NamedTemporaryFile('wb') as outfile:
+                outfile.write(decoded_body)
+                outfile.seek(0)
+                pdf_file_obj = open(outfile.name, 'rb')
+                pdf_reader = PyPDF2.PdfFileReader(pdf_file_obj)
+                self.assertEqual(2, pdf_reader.numPages)
+                page_obj = pdf_reader.getPage(0)
+                first_page_text = page_obj.extractText()
+                self.assertTrue(first_page_text.startswith('Lorem Ipsum'))
+                self.assertTrue(first_page_text.strip().endswith('the Internet. It uses a'))
+                pdf_file_obj.close()
 
 
 if __name__ == '__main__':
