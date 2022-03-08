@@ -1,3 +1,4 @@
+import base64
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
@@ -39,3 +40,13 @@ def attach_file(file_object, message):
     )
     message.attach(payload)
     return message
+
+
+def encode_multipart_message(message):
+    """Encode multipart message as urlsafe base64 string
+
+    :return: str, message encoded with base64.urlsafe_b64encode
+    """
+    return base64.urlsafe_b64encode(
+            message.as_string().encode()
+    ).decode()

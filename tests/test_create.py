@@ -36,7 +36,7 @@ def create_test_multipart_message():
     return message
 
 
-class TestMessageCreation(unittest.TestCase):
+class TestCreate(unittest.TestCase):
 
     def test_create_multipart_message(self):
         message = create_test_multipart_message()
@@ -136,6 +136,21 @@ class TestMessageCreation(unittest.TestCase):
                     data = infile.read()
                     test_data = test_file.read()
                     self.assertEqual(data, test_data)
+
+    def test_encode_multipart_message(self):
+        """Encode multipart message as urlsafe base64 string
+
+        :return: dict, {'raw': base64_string_of_message}
+        """
+        message = create_test_multipart_message()
+        text_repr = str(message)
+        encoded = create.encode_multipart_message(message)
+
+        self.assertIs(str, type(encoded))
+        self.assertEqual(
+            text_repr,
+            base64.urlsafe_b64decode(encoded).decode()
+        )
 
 
 if __name__ == '__main__':
