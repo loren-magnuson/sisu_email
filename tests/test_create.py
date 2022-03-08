@@ -23,6 +23,8 @@ TEST_EXCEL = './fixtures/test_xls.xls'
 
 TEST_PDF = './fixtures/test_pdf.pdf'
 
+TEST_IMAGE = './fixtures/test_image.jpg'
+
 
 def create_test_multipart_message():
     message = create.create_multipart_message(
@@ -87,8 +89,8 @@ class TestMessageCreation(unittest.TestCase):
 
     def test_attach_file_pdf(self):
         message = create_test_multipart_message()
-        with open(TEST_PDF, 'rb') as test_pdf:
-            message = create.attach_file(test_pdf, message)
+        with open(TEST_PDF, 'rb') as test_file:
+            message = create.attach_file(test_file, message)
 
             self.assertIsInstance(message.get_payload(1), MIMEBase)
             self.assertEqual(
@@ -110,6 +112,30 @@ class TestMessageCreation(unittest.TestCase):
                 self.assertTrue(first_page_text.startswith('Lorem Ipsum'))
                 self.assertTrue(first_page_text.strip().endswith('the Internet. It uses a'))
                 pdf_file_obj.close()
+
+    def test_attach_file_image(self):
+        message = create_test_multipart_message()
+        with open(TEST_IMAGE, 'rb') as test_file:
+            message = create.attach_file(test_file, message)
+
+            self.assertIsInstance(message.get_payload(1), MIMEBase)
+            self.assertEqual(
+                message.get_payload(1).get('Content-Decomposition'),
+                'attachment; filename="./fixtures/test_image.jpg"'
+            )
+
+            encoded_body = ''.join(message.get_payload(1).as_string().split('\n')[5:-1])
+            decoded_body = base64.b64decode(encoded_body)
+
+            with tempfile.NamedTemporaryFile('wb') as outfile:
+                outfile.write(decoded_body)
+                outfile.seek(0)
+
+                test_file.seek(0)
+                with open(outfile.name, 'rb') as infile:
+                    data = infile.read()
+                    test_data = test_file.read()
+                    self.assertEqual(data, test_data)
 
 
 if __name__ == '__main__':
