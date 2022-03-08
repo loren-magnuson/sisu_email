@@ -2,3 +2,4 @@ distlib==0.3.4
 six==1.16.0
 virtualenv==20.13.2
 xlrd~=2.0.1
+PyPDF2~=1.26.0
