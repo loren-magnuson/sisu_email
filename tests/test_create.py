@@ -145,7 +145,6 @@ class TestCreate(unittest.TestCase):
         message = create_test_multipart_message()
         text_repr = str(message)
         encoded = create.encode_multipart_message(message)
-
         self.assertIs(str, type(encoded))
         self.assertEqual(
             text_repr,

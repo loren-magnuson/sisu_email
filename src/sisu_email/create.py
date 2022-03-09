@@ -34,7 +34,7 @@ def attach_file(file_object, message):
     payload.set_payload(file_object.read())
     encoders.encode_base64(payload)
     payload.add_header(
-        'Content-Decomposition',
+        'Content-Disposition',
         'attachment',
         filename=file_object.name
     )
@@ -48,5 +48,5 @@ def encode_multipart_message(message):
     :return: str, message encoded with base64.urlsafe_b64encode
     """
     return base64.urlsafe_b64encode(
-            message.as_string().encode()
+        message.as_string().encode()
     ).decode()
