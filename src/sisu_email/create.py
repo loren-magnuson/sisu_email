@@ -1,4 +1,5 @@
 import base64
+import os
 from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
@@ -36,7 +37,7 @@ def attach_file(file_object, message):
     payload.add_header(
         'Content-Disposition',
         'attachment',
-        filename=file_object.name
+        filename=os.path.basename(file_object.name)
     )
     message.attach(payload)
     return message

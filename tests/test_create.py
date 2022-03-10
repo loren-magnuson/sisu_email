@@ -53,8 +53,8 @@ class TestCreate(unittest.TestCase):
 
             self.assertIsInstance(message.get_payload(1), MIMEBase)
             self.assertEqual(
-                message.get_payload(1).get('Content-Decomposition'),
-                'attachment; filename="./fixtures/test_txt.txt"'
+                message.get_payload(1).get('Content-Disposition'),
+                'attachment; filename="test_txt.txt"'
             )
 
             encoded_body = message.get_payload(1).as_string().split('\n')[-2]
@@ -70,8 +70,8 @@ class TestCreate(unittest.TestCase):
 
             self.assertIsInstance(message.get_payload(1), MIMEBase)
             self.assertEqual(
-                message.get_payload(1).get('Content-Decomposition'),
-                'attachment; filename="./fixtures/test_xls.xls"'
+                message.get_payload(1).get('Content-Disposition'),
+                'attachment; filename="test_xls.xls"'
             )
 
             encoded_body = ''.join(message.get_payload(1).as_string().split('\n')[5:-1])
@@ -94,8 +94,8 @@ class TestCreate(unittest.TestCase):
 
             self.assertIsInstance(message.get_payload(1), MIMEBase)
             self.assertEqual(
-                message.get_payload(1).get('Content-Decomposition'),
-                'attachment; filename="./fixtures/test_pdf.pdf"'
+                message.get_payload(1).get('Content-Disposition'),
+                'attachment; filename="test_pdf.pdf"'
             )
 
             encoded_body = ''.join(message.get_payload(1).as_string().split('\n')[5:-1])
@@ -120,8 +120,8 @@ class TestCreate(unittest.TestCase):
 
             self.assertIsInstance(message.get_payload(1), MIMEBase)
             self.assertEqual(
-                message.get_payload(1).get('Content-Decomposition'),
-                'attachment; filename="./fixtures/test_image.jpg"'
+                message.get_payload(1).get('Content-Disposition'),
+                'attachment; filename="test_image.jpg"'
             )
 
             encoded_body = ''.join(message.get_payload(1).as_string().split('\n')[5:-1])
