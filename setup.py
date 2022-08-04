@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="sisu_email",                     # This is the name of the package
-    version="0.0.5",                        # The initial release version
+    version="0.0.6",                        # The initial release version
     author="Loren Magnuson",                     # Full name of the author
     description="Quicksample Test Package for SQLShack Demo",
     long_description=long_description,      # Long description read from the the readme file
